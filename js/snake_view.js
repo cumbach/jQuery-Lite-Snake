@@ -21,26 +21,23 @@ View.prototype.handleKeyEvent = function (event) {
 
 View.prototype.setupViewGrid = function () {
   for (var i = 0; i <= 20; i++) {
-    // debugger;
     var $ul = $l(document.createElement("ul"));
-
     for (var j = 0; j <= 20; j++) {
       var $li = $l(document.createElement('li'));
-      // debugger;
       $li.attr('pos', [i,j]);
       $ul.append($li);
     }
-    // debugger;
     this.$el.append($ul);
   }
 
   this.renderApple();
   // this.renderMines();
   this.$li = this.$el.find('li');
-  this.$h1 = $l('h1');
-  // this.$el.append(this.$h1);
+  this.$h1 = $l(document.createElement('h1'));
   this.$h1.addClass("count");
-  // this.$h1.text("SCORE: 0");
+  this.$h1.html("SCORE: 0");
+  this.$el.append(this.$h1);
+  // debugger;
 };
 
 View.prototype.renderApple = function () {
@@ -99,7 +96,7 @@ View.prototype.viewRender = function () {
     }
   });
 
-  // this.$h1.text('SCORE: ' + this.board.count)
+  this.$h1.html('SCORE: ' + this.board.count)
   this.renderApple();
   // this.renderMines();
 
@@ -113,7 +110,7 @@ View.prototype.step = function () {
     this.viewRender();
   } else {
     this.$el.empty();
-    this.$over = $l('<over>');
+    this.$over = $l(document.createElement("div"));
     this.$over.html("Game Over\nFinal Score: " + this.board.count);
     this.$el.append(this.$over);
     this.$el.removeClass();
