@@ -44,17 +44,11 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/*eslint no-undef:0*/
-	var Board = __webpack_require__(1);
-	var View = __webpack_require__(4);
+	var View = __webpack_require__(1);
 	
 	$l(function () {
-	
-	  var board = new Board();
-	  var $el = $l('.board');
-	
-	  var view = new View(board, $el);
-	
+	  var rootEl = $l('.snake-game');
+	  new View(rootEl);
 	});
 
 
@@ -62,125 +56,434 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Snake = __webpack_require__(2);
-	var Coord = __webpack_require__(3);
+	var Board = __webpack_require__(2);
 	
-	(function (){
+	var View = function($el) {
+	  this.$el = $el;
+	  this.board = new Board();
+	  this.setupViewGrid();
+	  // debugger;
+	  $l(window).on("keydown", this.handleKeyEvent.bind(this));
+	  this.intervalID = window.setInterval(this.step.bind(this), 100);
+	};
 	
-	  var Board = function () {
-	    this.snake = new Snake();
-	    this.apples = [new Coord(15,15)];
-	  };
+	var KEYCODES = {
+	  37: "W",
+	  38: "N",
+	  39: "E",
+	  40: "S"
+	};
+	
+	View.prototype.handleKeyEvent = function (event) {
+	  this.board.snake.turn(KEYCODES[event.keyCode]);
+	};
+	
+	View.prototype.setupViewGrid = function () {
+	  for (var i = 0; i <= 20; i++) {
+	    // debugger;
+	    var $ul = $l("ul");
+	
+	    for (var j = 0; j <= 20; j++) {
+	      var $li = $l('li');
+	      $li.attr('pos', [i,j]);
+	      $ul.append($li);
+	    }
+	    debugger;
+	    this.$el.append($ul);
+	  }
+	
+	  this.renderApple();
+	  // this.renderMines();
+	  this.$li = this.$el.find('li');
+	  this.$h1 = $l('h1');
+	  this.$el.append(this.$h1);
+	  this.$h1.addClass("count");
+	  // this.$h1.text("SCORE: 0");
+	};
+	
+	View.prototype.renderApple = function () {
+	  var position = this.board.apple.position;
+	
+	  this.$apple = $l("li[pos='" + position.x + "," + position.y + "']");
+	  this.$apple.addClass('apple');
+	};
+	
+	// View.prototype.renderMines = function () {
+	//   var positions = this.board.mines.map(function(mine){
+	//     return mine.position;
+	//   });
+	//   positions.forEach(function(position){
+	//     this.$mines = $("li[pos='" + position.x + "," + position.y + "']");
+	//     this.$mines.addClass('mine');
+	//   });
+	// };
+	
+	View.prototype.viewRender = function () {
+	  this.$li.removeClass();
+	  var view = this;
+	  var segments = this.board.snake.segments;
+	
+	  segments.forEach(function(segment){
+	    for (var i = 0; i <= 20; i++) {
+	      for (var j = 0; j <= 20; j++) {
+	        if (segment.x === i && segment.y === j) {
+	          this.$snake = $l("li[pos='" + i + "," + j + "']");
+	          this.$snake.addClass("snake2");
+	        }
+	        if (view.board.snake.head().x === i && view.board.snake.head().y === j) {
+	          this.$head = $l("li[pos='" + i + "," + j + "']");
+	          this.$head.removeClass('snake2');
+	          this.$head.addClass("head");
+	        }
+	      }
+	    }
+	  });
+	
+	  var segments2 = this.board.snake2.segments;
+	
+	  segments2.forEach(function(segment){
+	    for (var i = 0; i <= 20; i++) {
+	      for (var j = 0; j <= 20; j++) {
+	        if (segment.x === i && segment.y === j) {
+	          this.$snake2 = $l("li[pos='" + i + "," + j + "']");
+	          this.$snake2.addClass("snake");
+	        }
+	        if (view.board.snake2.head().x === i && view.board.snake2.head().y === j) {
+	          this.$head = $l("li[pos='" + i + "," + j + "']");
+	          this.$head.removeClass('snake');
+	          this.$head.addClass("head");
+	        }
+	      }
+	    }
+	  });
+	
+	  // this.$h1.text('SCORE: ' + this.board.count)
+	  this.renderApple();
+	  // this.renderMines();
+	
+	};
 	
 	
-	  module.exports = Board;
-	})();
+	View.prototype.step = function () {
+	    this.board.snake.move();
+	    this.board.snake2.move();
+	  if (this.board.snake.segments.length !== 0) {
+	    this.viewRender();
+	  } else {
+	    this.$el.empty();
+	    this.$over = $l('<over>');
+	    this.$over.html("Game Over\nFinal Score: " + this.board.count);
+	    this.$el.append(this.$over);
+	    this.$el.removeClass();
+	
+	    window.clearInterval(this.intervalID);
+	  }
+	};
+	
+	
+	
+	
+	
+	
+	
+	
+	module.exports = View;
 
 
 /***/ },
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Coord = __webpack_require__(3);
-	
-	(function (){
-	
-	  var DIRECTIONS = ["N", "E", "S", "W"];
-	
-	  var Snake = function () {
-	    this.direction = "S";
-	    this.segments = [new Coord(0,0)];
-	  };
-	
-	  Snake.prototype.move = function () {
-	    var head = this.segments[0].addHead(this.direction);
-	    this.segments.unshift(head);
-	    this.segments.pop();
-	  };
-	
-	  Snake.prototype.turn = function (direction) {
-	    this.direction = direction;
-	  };
-	
-	  module.exports = Snake;
-	
-	})();
-
-
-/***/ },
-/* 3 */
 /***/ function(module, exports) {
 
-	var TRANSFORMATIONS = {
-	    "N":[0,-1],
-	    "E":[1,0],
-	    "S":[0,1],
-	    "W":[-1,0]
-	  };
+	function Coord (x, y) {
+	  this.x = x;
+	  this.y = y;
+	}
 	
-	(function() {
-	  var Coord = function (x, y) {
-	    this.x = x;
-	    this.y = y;
-	  };
+	Coord.prototype.plus = function (coord2) {
+	  return new Coord(this.x + coord2.x, this.y + coord2.y);
+	};
 	
-	  Coord.prototype.addHead = function (direction) {
-	    var trans = TRANSFORMATIONS[direction];
-	    return new Coord(this.x + trans[0], this.y + trans[1]);
-	  };
+	Coord.prototype.equals = function (coord2) {
+	  return (this.x === coord2.x) && (this.y === coord2.y);
+	};
 	
-	  Coord.prototype.equals = function (other) {
-	    return (this.x === other.x && this.y === other.y);
-	  };
+	Coord.prototype.isOpposite = function (coord2) {
+	  return (this.x === (-1 * coord2.x)) && (this.y === (-1 * coord2.y));
+	};
 	
-	  Coord.prototype.isOpposite = function (other) {
+	function Apple (board) {
+	  this.board = board;
 	
-	  };
+	  this.replace();
+	}
 	
-	  module.exports = Coord;
-	}());
-
-
-/***/ },
-/* 4 */
-/***/ function(module, exports) {
-
-	(function() {
+	Apple.prototype.replace = function () {
+	  // var x = Math.floor(Math.random() * 20);
+	  // var y = Math.floor(Math.random() * 20);
+	
+	  var x = Math.floor(Math.random() * 20);
+	  var y = Math.floor(Math.random() * 20);
+	
+	  while (this.board.snake.isOccupying([x,y])) {
+	    x = Math.floor(Math.random() * 20);
+	    y = Math.floor(Math.random() * 20);
+	  }
+	  // debugger
+	
+	  this.position = new Coord(x,y);
+	};
+	
+	// function Mine (board) {
+	//   this.board = board;
+	//
+	//   this.replace();
+	// }
+	//
+	// Mine.prototype.replace = function () {
+	//   // var x = Math.floor(Math.random() * 20);
+	//   // var y = Math.floor(Math.random() * 20);
+	//
+	//   var x = Math.floor(Math.random() * 20);
+	//   var y = Math.floor(Math.random() * 20);
+	//
+	//   while (this.board.snake.isOccupying([x,y])) {
+	//     x = Math.floor(Math.random() * 20);
+	//     y = Math.floor(Math.random() * 20);
+	//   }
+	//   // debugger
+	//
+	//   this.position = new Coord(x,y);
+	// };
+	
+	function Snake (board) {
+	  this.board = board;
+	  this.direction = "E";
+	  this.segments = [new Coord(0,0), new Coord(0,1), new Coord(0,2)];
+	}
+	
+	Snake.prototype.head = function () {
+	  return this.segments[this.segments.length -1];
+	};
+	
+	Snake.prototype.isOccupying = function (array) {
+	  var result = false;
+	  this.segments.forEach(function (segment) {
+	    if (segment.x === array[0] && segment.y === array[1]) {
+	      result = true;
+	      return result;
+	    }
+	  });
+	  return result;
+	};
+	
+	Snake.prototype.move = function () {
+	  var mineHit = false;
+	
+	  // this.board.mines.forEach(function(mine){
+	  //   if (mine.position.equals(this.head())) {
+	  //     mineHit = true;
+	  //   }
+	  // }.bind(this));
+	
+	  if (mineHit) {
+	    this.segments = [];
+	  } else if (this.board.apple.position.equals(this.head()) &&
+	      this.board.moveInBoard()) {
+	    this.board.apple.replace();
+	    // this.board.mines.push(new Mine(this.board));
+	    this.board.count += 1;
+	    this.segments.push(this.head().plus(Snake.DIFFS[this.direction]));
+	  } else if (this.board.moveInBoard()) {
+	    this.segments.push(this.head().plus(Snake.DIFFS[this.direction]));
+	    this.segments.shift();
+	  } else {
+	    this.segments = [];
+	  }
+	  // debugger;
+	  for (var i = 0; i < this.segments.length - 1; i++) {
+	    if (this.segments[i].equals(this.head())) {
+	      this.segments = [];
+	    }
+	  }
+	  // debugger;
+	};
 	
 	
-	  var View = function (board, $el) {
-	    this.board = board;
-	    this.$el = $el;
-	    this.populateBoard();
-	  };
+	Snake.DIFFS = {
+	  "N": new Coord(-1, 0),
+	  "E": new Coord(0, 1),
+	  "S": new Coord(1, 0),
+	  "W": new Coord(0, -1)
+	};
 	
-	  View.prototype.populateBoard = function () {
-	    var $newDiv;
-	    for (var i = 0; i < 30; i++) {
-	      for (var j = 0; j < 30; j++) {
-	      this.$el.append("<div class=x" + j + "y" + i + "></div>");
+	Snake.prototype.turn = function (newDirection) {
+	  // console.log(!Snake.DIFFS[this.direction].isOpposite(Snake.DIFFS[newDirection]));
+	
+	  if (!Snake.DIFFS[this.direction].isOpposite(Snake.DIFFS[newDirection])) {
+	    this.direction = newDirection;
+	  }
+	};
+	
+	Snake.prototype.grow = function () {
+	  if (this.board.moveInBoard()) {
+	    this.segments.push(this.head().plus(Snake.DIFFS[this.direction]));
+	    // this.segments.shift();
+	  } else {
+	    this.segments = [];
+	  }
+	};
+	
+	function Snake2 (board) {
+	  this.board = board;
+	  this.direction = "W";
+	  this.segments = [new Coord(18,18), new Coord(17,18), new Coord(16,18)];
+	}
+	
+	Snake2.prototype.head = function () {
+	  return this.segments[this.segments.length -1];
+	};
+	
+	Snake2.prototype.isOccupying = function (array) {
+	  var result = false;
+	  this.segments.forEach(function (segment) {
+	    if (segment.x === array[0] && segment.y === array[1]) {
+	      result = true;
+	      return result;
+	    }
+	  });
+	  return result;
+	};
+	
+	Snake2.prototype.move = function () {
+	
+	  if (this.board.apple.position.equals(this.head())) {
+	    this.board.apple.replace();
+	    this.board.count -= 1;
+	    this.segments.push(this.head().plus(Snake.DIFFS[this.direction]));
+	  } else {
+	  // } else if (this.board.moveInBoard()) {
+	  //
+	    this.segments.push(this.head().plus(Snake.DIFFS[this.direction]));
+	    this.segments.shift();
+	  // } else {
+	  //
+	  //   this.segments = [];
+	  }
+	
+	  // for (var i = 0; i < this.segments.length - 1; i++) {
+	  //   if (this.segments[i].equals(this.head())) {
+	  //     this.segments = [];
+	  //   }
+	  // }
+	
+	  this.aI();
+	
+	};
+	
+	Snake2.prototype.aI = function() {
+	
+	  var nextMove = this.head().plus(Snake.DIFFS[this.direction]);
+	  var newDirection = this.direction;
+	  if (nextMove.x <= 0 || nextMove.x >= 20 || nextMove.y <= 0 || nextMove.y >= 20) {
+	
+	
+	    Object.keys(Snake.DIFFS).forEach(function(direction){
+	      var head = this.head();
+	
+	      for (var i = 0; i < 5; i++) {
+	        head = head.plus(Snake.DIFFS[direction]);
+	      }
+	
+	      if (head.x >= 0 &&
+	          head.y >= 0 &&
+	          head.x <= 20 &&
+	          head.y <= 20 &&
+	          !Snake.DIFFS[this.direction].isOpposite(Snake.DIFFS[direction])) {
+	        newDirection = direction;
+	      }
+	
+	    }.bind(this));
+	
+	
+	  }
+	  this.turn(newDirection);
+	};
+	
+	Snake2.prototype.turn = function (newDirection) {
+	  Object.keys(Snake.DIFFS).forEach(function(direction){
+	    var head = this.head();
+	    // debugger;
+	    for (var i = 0; i < 20; i++) {
+	      head = head.plus(Snake.DIFFS[direction]);
+	      if (this.board.apple.position.equals(head)) {
+	        if (!Snake.DIFFS[this.direction].isOpposite(Snake.DIFFS[direction])) {
+	          newDirection = direction;
+	        }
+	        break;
 	      }
 	    }
-	    this.render();
-	  };
+	  }.bind(this));
 	
-	  View.prototype.render = function () {
-	    var $tiles = this.$el.children();
+	  this.direction = newDirection;
 	
-	    $tiles.removeClass('apple').removeClass('snake');
+	  // if (!Snake.DIFFS[this.direction].isOpposite(Snake.DIFFS[newDirection])) {
+	  //   this.direction = newDirection;
+	  // } else {
+	  //   while (true) {
+	  //     newDirection = Object.keys(Snake.DIFFS)[Math.floor(Math.random() * 4)];
+	  //     if (!Snake.DIFFS[this.direction].isOpposite(Snake.DIFFS[newDirection]) &&
+	  //         Snake.DIFFS[this.direction] !== Snake.DIFFS[newDirection]) {
+	  //       console.log(Snake.DIFFS[this.direction]);
+	  //       console.log(Snake.DIFFS[newDirection]);
+	  //       this.direction = newDirection;
+	  //       break;
+	  //     }
+	  //   }
+	  // }
+	};
 	
-	    this.board.apples.forEach(function (apple) {
-	      var coordClass = ".x" + String(apple.x) + "y" + String(apple.y);
-	      var $currentDiv = $tiles.find(coordClass);
-	      $currentDiv.addClass('apple');
-	      // debugger  
-	    });
+	Snake2.prototype.grow = function () {
+	  if (this.board.moveInBoard()) {
+	    this.segments.push(this.head().plus(Snake.DIFFS[this.direction]));
+	    // this.segments.shift();
+	  } else {
+	    this.segments = [];
+	  }
+	};
+	
+	function Board () {
+	  this.snake = new Snake(this);
+	  this.snake2 = new Snake2(this);
+	  this.grid = [];
+	  this.setupGrid();
+	  this.apple = new Apple(this);
+	  // this.mines = [];
+	  // this.mines.push(new Mine(this));
+	  this.count = 0;
+	}
+	
+	Board.prototype.moveInBoard = function () {
+	  var head = this.snake.head();
+	  return (head.x >= 0 && head.x <= 20 && head.y >= 0 && head.y <= 20);
+	};
+	
+	Board.prototype.setupGrid = function () {
+	  for (var i = 0; i <= 20; i++) {
+	    for (var j = 0; j <= 20; j++) {
+	      this.grid.push([i,j]);
+	    }
+	  }
+	};
+	
+	Board.prototype.render = function () {
+	  this.snake.segments.forEach(function (segment) {
+	    this.grid[segment.x, segment.y] = "Z";
+	  }.bind(this));
+	};
 	
 	
-	  };
 	
-	  module.exports = View;
-	})();
+	module.exports = Board;
 
 
 /***/ }

@@ -1,12 +1,6 @@
-/*eslint no-undef:0*/
-var Board = require("./board.js");
-var View = require("./view.js");
+var View = require('./snake_view.js');
 
 $l(function () {
-
-  var board = new Board();
-  var $el = $l('.board');
-
-  var view = new View(board, $el);
-
+  var rootEl = $l('.snake-game');
+  new View(rootEl);
 });

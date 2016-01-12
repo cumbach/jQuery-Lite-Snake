@@ -14,11 +14,15 @@
   }, false);
 
   $l = function (arg) {
+    debugger
     var htmlEls;
-    if (arg instanceof HTMLElement) {
-
+    if (typeof(arg) === 'object') {
+      if (arg instanceof HTMLElement){
+        htmlEls = [arg];
+        // returnValue = new DomNodeCollection([arg]);
+      }
       //html element
-      htmlEls = [arg];
+
 
     } else if (arg instanceof Function) {
 
