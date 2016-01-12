@@ -62,8 +62,7 @@
 	  this.$el = $el;
 	  this.board = new Board();
 	  this.setupViewGrid();
-	  // debugger;
-	  $l(window).on("keydown", this.handleKeyEvent.bind(this));
+	  window.addEventListener("keydown", this.handleKeyEvent.bind(this));
 	  this.intervalID = window.setInterval(this.step.bind(this), 100);
 	};
 	
@@ -81,14 +80,15 @@
 	View.prototype.setupViewGrid = function () {
 	  for (var i = 0; i <= 20; i++) {
 	    // debugger;
-	    var $ul = $l("ul");
+	    var $ul = $l(document.createElement("ul"));
 	
 	    for (var j = 0; j <= 20; j++) {
-	      var $li = $l('li');
+	      var $li = $l(document.createElement('li'));
+	      // debugger;
 	      $li.attr('pos', [i,j]);
 	      $ul.append($li);
 	    }
-	    debugger;
+	    // debugger;
 	    this.$el.append($ul);
 	  }
 	
@@ -96,7 +96,7 @@
 	  // this.renderMines();
 	  this.$li = this.$el.find('li');
 	  this.$h1 = $l('h1');
-	  this.$el.append(this.$h1);
+	  // this.$el.append(this.$h1);
 	  this.$h1.addClass("count");
 	  // this.$h1.text("SCORE: 0");
 	};

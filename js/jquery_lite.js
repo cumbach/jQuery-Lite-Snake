@@ -14,13 +14,15 @@
   }, false);
 
   $l = function (arg) {
-    debugger
+    // debugger
     var htmlEls;
+
     if (typeof(arg) === 'object') {
-      if (arg instanceof HTMLElement){
+      // debugger;
+      // if (arg instanceof HTMLElement){
         htmlEls = [arg];
         // returnValue = new DomNodeCollection([arg]);
-      }
+      // }
       //html element
 
 
@@ -155,6 +157,7 @@
   };
 
   DOMNodeCollection.prototype.on = function (type, callback) {
+    debugger;
     this.elements.forEach(function (el) {
       el.addEventListener(type, callback);
     });
