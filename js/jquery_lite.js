@@ -1,6 +1,4 @@
 (function() {
-  /* eslint no-undef:0, semi:2 */
-  /* eslint guard-for-in:0, semi:2*/
 
   if (typeof $l === "undefined") {
     window.$l = {};
@@ -14,31 +12,31 @@
   }, false);
 
   $l = function (arg) {
-    // debugger
-    var htmlEls;
+    if (arg instanceof Function) {
 
-    if (typeof(arg) === 'object') {
-      // debugger;
-      // if (arg instanceof HTMLElement){
-        htmlEls = [arg];
-        // returnValue = new DomNodeCollection([arg]);
-      // }
-      //html element
-
-
-    } else if (arg instanceof Function) {
-
-      //fxn
       eventQueue.push(arg);
+      return document;
 
+    } else if(arg instanceof Object) {
+      return new DOMNodeCollection([arg]);
     } else {
 
-      //css selector
-      htmlEls = Array.prototype.slice
-                  .call(document.querySelectorAll(arg));
-    }
+      if (arg instanceof HTMLElement) {
 
-    return new DOMNodeCollection(htmlEls);
+        htmlEls = [arg]
+
+      } else {
+        matches = arg.match(/^<(\w+)>$/);
+
+        if (matches) {
+          htmlEls = [document.createElement(matches[1])];
+        } else {
+          htmlEls = Array.prototype.slice.call(document.querySelectorAll(arg));
+        }
+      }
+
+      return new DOMNodeCollection(htmlEls);
+    }
   };
 
   DOMNodeCollection = function (elements) {
@@ -157,7 +155,6 @@
   };
 
   DOMNodeCollection.prototype.on = function (type, callback) {
-    debugger;
     this.elements.forEach(function (el) {
       el.addEventListener(type, callback);
     });

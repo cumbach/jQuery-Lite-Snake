@@ -62,7 +62,7 @@
 	  this.$el = $el;
 	  this.board = new Board();
 	  this.setupViewGrid();
-	  window.addEventListener("keydown", this.handleKeyEvent.bind(this));
+	  $l(window).on("keydown", this.handleKeyEvent.bind(this));
 	  this.intervalID = window.setInterval(this.step.bind(this), 100);
 	};
 	
@@ -79,9 +79,9 @@
 	
 	View.prototype.setupViewGrid = function () {
 	  for (var i = 0; i <= 20; i++) {
-	    var $ul = $l(document.createElement("ul"));
+	    var $ul = $l("<ul>");
 	    for (var j = 0; j <= 20; j++) {
-	      var $li = $l(document.createElement('li'));
+	      var $li = $l('<li>');
 	      $li.attr('pos', [i,j]);
 	      $ul.append($li);
 	    }
@@ -91,7 +91,7 @@
 	  this.renderApple();
 	  // this.renderMines();
 	  this.$li = this.$el.find('li');
-	  this.$h1 = $l(document.createElement('h1'));
+	  this.$h1 = $l('<h1>');
 	  this.$h1.addClass("count");
 	  this.$h1.html("SCORE: 0");
 	  this.$el.append(this.$h1);
@@ -104,16 +104,6 @@
 	  this.$apple = $l("li[pos='" + position.x + "," + position.y + "']");
 	  this.$apple.addClass('apple');
 	};
-	
-	// View.prototype.renderMines = function () {
-	//   var positions = this.board.mines.map(function(mine){
-	//     return mine.position;
-	//   });
-	//   positions.forEach(function(position){
-	//     this.$mines = $("li[pos='" + position.x + "," + position.y + "']");
-	//     this.$mines.addClass('mine');
-	//   });
-	// };
 	
 	View.prototype.viewRender = function () {
 	  this.$li.removeClass();
@@ -153,10 +143,11 @@
 	      }
 	    }
 	  });
-	
+	// debugger;
+	  this.$h1 = $l('h1');
 	  this.$h1.html('SCORE: ' + this.board.count)
+	  console.log(this.board.count)
 	  this.renderApple();
-	  // this.renderMines();
 	
 	};
 	
@@ -168,7 +159,7 @@
 	    this.viewRender();
 	  } else {
 	    this.$el.empty();
-	    this.$over = $l(document.createElement("div"));
+	    this.$over = $l("<over>");
 	    this.$over.html("Game Over\nFinal Score: " + this.board.count);
 	    this.$el.append(this.$over);
 	    this.$el.removeClass();
